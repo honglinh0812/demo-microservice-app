@@ -27,7 +27,7 @@ pipeline {
         stage('Build and push Docker images') {
             steps {
                 script {
-                    def tagName = env.TAG_NAME
+                    def tagName = env.GIT_BRANCH?.replaceAll('refs/tags/', '')
                     def frontendImage = "${DOCKER_HUB_REPO}/microservices-frontend:${tagName}"
                     def backendImage = "${DOCKER_HUB_REPO}/microservices-backend:${tagName}"
                     withCredentials([usernamePassword(credentialsId: 'dockerhubcredentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
