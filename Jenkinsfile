@@ -64,11 +64,11 @@ pipeline {
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
 
                             def frontendValuesFilePath = "${FRONTEND_HELM_CHART_PATH}/${VALUES_FILE}"
-                            sh "sed -i 's|tag: ".*"|tag: \"${tagName}\"|g' ${frontendValuesFilePath}"
+                            sh "sed -i 's|tag: \\\".*\\\"|tag: \\\"${tagName}\\\"|g' ${frontendValuesFilePath}"
                             echo "Updated ${frontendValuesFilePath} with image tag: ${tagName}"
 
                             def backendValuesFilePath = "${BACKEND_HELM_CHART_PATH}/${VALUES_FILE}"
-                            sh "sed -i 's|tag: ".*"|tag: \"${tagName}\"|g' ${backendValuesFilePath}"
+                            sh "sed -i 's|tag: \\\".*\\\"|tag: \\\"${tagName}\\\"|g' ${backendValuesFilePath}"
                             echo "Updated ${backendValuesFilePath} with image tag: ${tagName}"
 
                             sh "git add ${frontendValuesFilePath}"
