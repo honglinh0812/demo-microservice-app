@@ -31,10 +31,10 @@ function App() {
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Microservices Demo App v1
+            Microservices Demo App v2.2
           </h1>
           <p className="text-gray-600 mb-4">
-            Frontend React App + Backend Flask API
+            Frontend React App + Backend Flask API v2.2
           </p>
           
           {/* API Status */}
