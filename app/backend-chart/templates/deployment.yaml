@@ -40,13 +40,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/health
-              port: http
+              port: 5001
             initialDelaySeconds: 10
             periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /api/health
-              port: http
+              port: 5001
             initialDelaySeconds: 5
             periodSeconds: 3
           resources:

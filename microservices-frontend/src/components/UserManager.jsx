@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.jsx';
 import { Trash2, Edit, Plus } from 'lucide-react';
 
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = 'http://192.168.138.132:31111/api';
 
 export default function UserManager() {
   const [users, setUsers] = useState([]);

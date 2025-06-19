@@ -1,10 +1,10 @@
 replicaCount: 1
 
 image:
-  repository: linhx021/microservices-backend
+  repository: linhx021/microservice-backend
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: v1.0
 
 imagePullSecrets: []
 nameOverride: ""
@@ -12,7 +12,7 @@ fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
-  create: true
+  create: false
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use. If not set and create is true, a name is generated using the fullname template
@@ -31,8 +31,10 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  port: 5001
+  type: NodePort
+  port: 80
+  targetPort: 5001
+  nodePort: 31111
 
 ingress:
   enabled: false

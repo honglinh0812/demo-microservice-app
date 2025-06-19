@@ -11,6 +11,7 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+      nodePort: {{ .Values.service.nodePort }}
   selector:
     {{- include "microservices-frontend.selectorLabels" . | nindent 4 }}
 

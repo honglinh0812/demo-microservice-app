@@ -10,7 +10,7 @@ function App() {
 
   const checkApiStatus = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api');
+      const response = await fetch('http://192.168.138.132:31111/api');
       if (response.ok) {
         setApiStatus('connected');
       } else {

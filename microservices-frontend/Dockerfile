@@ -1,15 +1,15 @@
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY microservices-frontend/package.json .
-COPY microservices-frontend/pnpm-lock.yaml .
+COPY package.json .
+COPY pnpm-lock.yaml .
 
 RUN npm install -g pnpm
 
 RUN pnpm install --frozen-lockfile
 
-COPY microservices-frontend/ .
+COPY . .
 
 RUN pnpm run build
 

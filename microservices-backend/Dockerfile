@@ -1,11 +1,11 @@
-FROM python:3.9-slim-buster
+FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY microservices-backend/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY microservices-backend/src /app/src
+COPY /src /app/src
 
 ENV FLASK_APP=src/main.py
 ENV FLASK_RUN_HOST=0.0.0.0
