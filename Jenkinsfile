@@ -12,19 +12,19 @@ pipeline {
         VALUES_FILE = 'values.yaml'
         }
     stages {
-        stage('Checkout Source Code') {
+        stage('Checkout source code') {
             steps {
                 script {
-                    def tagName = env.TAG_NAME
+                    def tagName = env.GIT_BRANCH?.replaceAll('refs/tags/', '')
                     if (!tagName) {
-                        error 'TAG_NAME environment variable is not set. This pipeline should be triggered by a Git tag.'
+                        error 'GIT_BRANCH does not contain tag name. Make sure this job is triggered by a tag.'
                     }
                     echo "Building for tag: ${tagName}"
                     checkout scm
                 }
             }
         }
-        stage('Build and Push Docker Images') {
+        stage('Build and push Docker images') {
             steps {
                 script {
                     def tagName = env.TAG_NAME
@@ -50,7 +50,7 @@ pipeline {
                 }
             }
         }
-        stage('Update Config Repo') {
+        stage('Update config repository') {
             steps {
                 script {
                     def tagName = env.TAG_NAME
