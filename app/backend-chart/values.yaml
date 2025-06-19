@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: your-docker-repo/microservices-backend
+  repository: linhx021/microservices-backend
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
