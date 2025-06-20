@@ -15,18 +15,9 @@ pipeline {
         stage('Checkout source code') {
             steps {
                 script {
-<<<<<<< HEAD
-                    def tagName = env.TAG_NAME
-                    if (!tagName) {
-                        error 'GIT_BRANCH does not contain tag name. Make sure this job is triggered by a tag.'
-                    }
-                    echo "Building for tag: ${tagName}"
-=======
                     def tagName = ""
                     // Đảm bảo đã checkout mã nguồn đầy đủ để có thông tin Git
->>>>>>> 72becc8 (Update Jenkinsfile 11h07)
                     checkout scm
-
                     // Lấy commit hash hiện tại
                     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     echo "Current commit hash: ${currentCommit}"
