@@ -15,12 +15,48 @@ pipeline {
         stage('Checkout source code') {
             steps {
                 script {
+<<<<<<< HEAD
                     def tagName = env.TAG_NAME
                     if (!tagName) {
                         error 'GIT_BRANCH does not contain tag name. Make sure this job is triggered by a tag.'
                     }
                     echo "Building for tag: ${tagName}"
+=======
+                    def tagName = ""
+                    // Đảm bảo đã checkout mã nguồn đầy đủ để có thông tin Git
+>>>>>>> 72becc8 (Update Jenkinsfile 11h07)
                     checkout scm
+
+                    // Lấy commit hash hiện tại
+                    def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    echo "Current commit hash: ${currentCommit}"
+
+                    // Cố gắng lấy tên tag chính xác cho commit hiện tại
+                    try {
+                        // Lệnh này sẽ chỉ trả về tag nếu commit hiện tại chính xác là một tag
+                        tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
+                    } catch (Exception e) {
+                        echo "Cảnh báo: Lệnh `git describe --exact-match` thất bại cho commit ${currentCommit}. Lỗi: ${e.getMessage()}"
+                        // Nếu không phải là exact match tag, thử tìm tag gần nhất hoặc từ biến môi trường
+                        try {
+                            tagName = sh(returnStdout: true, script: 'git describe --tags --abbrev=0').trim()
+                        } catch (Exception e2) {
+                            echo "Cảnh báo: Lệnh `git describe --abbrev=0` thất bại. Lỗi: ${e2.getMessage()}"
+                            // Phương án dự phòng cuối cùng: lấy từ biến môi trường của Jenkins
+                            if (env.TAG_NAME) {
+                                tagName = env.TAG_NAME
+                            } else if (env.GIT_BRANCH && env.GIT_BRANCH.startsWith('tags/')) {
+                                tagName = env.GIT_BRANCH.substring(env.GIT_BRANCH.lastIndexOf('/') + 1)
+                            } else if (env.GIT_TAG) {
+                                tagName = env.GIT_TAG
+                            }
+                        }
+                    }
+
+                    if (!tagName) {
+                        error 'Không thể xác định tên tag. Đảm bảo job được kích hoạt bởi một Git tag và repository có tag.'
+                    }
+                    echo "Đang build cho tag: ${tagName}"
                 }
             }
         }
