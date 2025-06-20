@@ -44,8 +44,8 @@ spec:
         CONFIG_REPO_BRANCH = 'main' 
         FRONTEND_SOURCE_PATH = 'microservices-frontend'
         BACKEND_SOURCE_PATH = 'microservices-backend' 
-        FRONTEND_HELM_CHART_PATH = '/config/frontend-chart' 
-        BACKEND_HELM_CHART_PATH = '/config/backend-chart' 
+        FRONTEND_HELM_CHART_PATH = 'config/frontend-chart' 
+        BACKEND_HELM_CHART_PATH = 'config/backend-chart' 
         VALUES_FILE = 'values.yaml'
         }
     stages {
