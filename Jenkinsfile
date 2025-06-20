@@ -1,5 +1,41 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            yaml """
+            apiVersion: v1
+            kind: Pod
+            spec:
+            containers:
+            - name: jnlp
+                image: jenkins/inbound-agent:alpine-jdk11
+                args: [\'$(JENKINS_SECRET)\', \'$(JENKINS_NAME)\']
+                workingDir: /home/jenkins/agent
+                volumeMounts:
+                - name: workspace-volume
+                mountPath: /home/jenkins/agent
+
+            - name: kaniko
+                image: gcr.io/kaniko-project/executor:debug
+                imagePullPolicy: Always
+                command: [sleep]
+                args: [9999999]
+                volumeMounts:
+                - name: workspace-volume
+                mountPath: /home/jenkins/agent
+                - name: docker-config
+                mountPath: /kaniko/.docker/
+            volumes:
+            - name: workspace-volume
+                emptyDir: {}
+            - name: docker-config
+                secret:
+                secretName: dockerhub-credentials
+                items:
+                    - key: .dockerconfigjson
+                    path: config.json
+            """
+        }
+    }
     environment {
         DOCKER_HUB_USERNAME = 'linhx021' 
         DOCKER_HUB_REPO = 'linhx021' 
@@ -16,24 +52,19 @@ pipeline {
             steps {
                 script {
                     def tagName = ""
-                    // Đảm bảo đã checkout mã nguồn đầy đủ để có thông tin Git
                     checkout scm
-                    // Lấy commit hash hiện tại
+                    
                     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     echo "Current commit hash: ${currentCommit}"
 
-                    // Cố gắng lấy tên tag chính xác cho commit hiện tại
                     try {
-                        // Lệnh này sẽ chỉ trả về tag nếu commit hiện tại chính xác là một tag
                         tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
                     } catch (Exception e) {
                         echo "Cảnh báo: Lệnh `git describe --exact-match` thất bại cho commit ${currentCommit}. Lỗi: ${e.getMessage()}"
-                        // Nếu không phải là exact match tag, thử tìm tag gần nhất hoặc từ biến môi trường
                         try {
                             tagName = sh(returnStdout: true, script: 'git describe --tags --abbrev=0').trim()
                         } catch (Exception e2) {
                             echo "Cảnh báo: Lệnh `git describe --abbrev=0` thất bại. Lỗi: ${e2.getMessage()}"
-                            // Phương án dự phòng cuối cùng: lấy từ biến môi trường của Jenkins
                             if (env.TAG_NAME) {
                                 tagName = env.TAG_NAME
                             } else if (env.GIT_BRANCH && env.GIT_BRANCH.startsWith('tags/')) {
@@ -51,28 +82,31 @@ pipeline {
                 }
             }
         }
-        stage('Build and push Docker images') {
+        stage('Build and Push Backend Image with Kaniko') {
             steps {
-                script {
-                    def tagName = env.TAG_NAME
-                    def frontendImage = "${DOCKER_HUB_REPO}/microservices-frontend:${tagName}"
-                    def backendImage = "${DOCKER_HUB_REPO}/microservices-backend:${tagName}"
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
-                        sh "echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
+                container('kaniko') {
+                    dir("${BACKEND_SOURCE_PATH}") {
+                        sh '''
+                        /kaniko/executor \
+                          --dockerfile=Dockerfile \
+                          --context=dir://$(pwd) \
+                          --destination=docker.io/$DOCKER_HUB_REPO/microservice-backend:$IMAGE_TAG
+                        '''
+                    }
+                }
+            }
+        }
 
-                        echo "Building Docker image: ${frontendImage}"
-                        dir(FRONTEND_SOURCE_PATH) {
-                            sh "docker build -t ${frontendImage} ."
-                        }
-                        sh "docker push ${frontendImage}"
-                        echo "Docker image ${frontendImage} pushed to Docker Hub."
-
-                        echo "Building Docker image: ${backendImage}"
-                        dir(BACKEND_SOURCE_PATH) {
-                            sh "docker build -t ${backendImage} ."
-                        }
-                        sh "docker push ${backendImage}"
-                        echo "Docker image ${backendImage} pushed to Docker Hub."
+        stage('Build and Push Frontend Image with Kaniko') {
+            steps {
+                container('kaniko') {
+                    dir("${FRONTEND_SOURCE_PATH}") {
+                        sh '''
+                        /kaniko/executor \
+                          --dockerfile=Dockerfile \
+                          --context=dir://$(pwd) \
+                          --destination=docker.io/$DOCKER_HUB_REPO/microservice-frontend:$IMAGE_TAG
+                        '''
                     }
                 }
             }
