@@ -93,7 +93,7 @@ spec:
                         echo "Đang build và push image với Kaniko: ${dockerImageTag}"
                         sh """
                         /kaniko/executor \
-                            --context `pwd` \
+                            --context `pwd`/microservices-frontend \
                             --dockerfile `pwd`/microservices-frontend/Dockerfile \
                             --destination docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
                         """
@@ -112,7 +112,7 @@ spec:
                         sh """
                         /kaniko/executor \
                             --dockerfile `pwd`/microservices-backend/Dockerfile \
-                            --context `pwd` \
+                            --context `pwd`/microservices-backend \
                             --destination=docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
                         """     
                     }
