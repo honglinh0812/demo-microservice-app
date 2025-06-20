@@ -107,7 +107,7 @@ spec:
                 script {
                     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     def tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
-                    def dockerImageTag = "microservice-frontend:${tagName}"
+                    def dockerImageTag = "microservice-backend:${tagName}"
                     container('kaniko') {
                         sh """
                         /kaniko/executor \
@@ -146,8 +146,8 @@ spec:
                     def configRepoDir = "config-repo"
 
                     withCredentials([usernamePassword(credentialsId: 'git-config-repo-credentials', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        sh "git config --global user.email 'jenkins@example.com'"
-                        sh "git config --global user.name 'Jenkins CI'"
+                        sh "git config --global user.email 'honglinh0812uet@gmail.com'"
+                        sh "git config --global user.name 'honglinh0812'"
                         sh "git clone ${CONFIG_REPO_URL} ${configRepoDir}"
                         dir(configRepoDir) {
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
