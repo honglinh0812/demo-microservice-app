@@ -86,17 +86,19 @@ pipeline {
 
         stage('Build and Push Frontend Image with Kaniko') {
             steps {
-                def gitCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim().substring(0, 8)
-                def dockerImageTag = "microservice-frontend:${gitCommit}"
-                container('kaniko') {
-                        echo "Đang build và push image với Kaniko: ${dockerImageTag}"
-                        sh """
-                        /kaniko/executor --context `pwd` \\
-                                         --dockerfile `pwd`/microservices-frontend/Dockerfile \\
-                                         --destination ${dockerImageTag}
-                        """
-                        echo "Build và push với Kaniko thành công."
+                script {
+                    def gitCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim().substring(0, 8)
+                    def dockerImageTag = "microservice-frontend:${gitCommit}"
+                    container('kaniko') {
+                            echo "Đang build và push image với Kaniko: ${dockerImageTag}"
+                            sh """
+                            /kaniko/executor --context `pwd` \\
+                                            --dockerfile `pwd`/microservices-frontend/Dockerfile \\
+                                            --destination ${dockerImageTag}
+                            """
+                            echo "Build và push với Kaniko thành công."
                     }
+                }
             }
         }
 
@@ -114,7 +116,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Update config repository') {
             steps {
                 script {
