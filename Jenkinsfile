@@ -17,6 +17,9 @@ pipeline {
         - name: kaniko
           image: gcr.io/kaniko-project/executor:debug
           imagePullPolicy: Always
+          tty: true
+          command: ['/bin/sh', '-cx']
+          args: ['cat']
           volumeMounts:
             - name: workspace-volume
               mountPath: /home/jenkins/agent
