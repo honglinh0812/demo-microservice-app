@@ -1,14 +1,14 @@
 pipeline {
     agent {
         kubernetes {
-            yaml """
+            yaml ''' |
     apiVersion: v1
     kind: Pod
     spec:
     containers:
         - name: jnlp
         image: jenkins/inbound-agent:alpine-jdk11
-        args: ['\\$(JENKINS_SECRET)', '\\$(JENKINS_NAME)']
+        args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
         workingDir: /home/jenkins/agent
         volumeMounts:
             - name: workspace-volume
@@ -33,7 +33,7 @@ pipeline {
             items:
             - key: .dockerconfigjson
                 path: config.json
-    """
+    '''.stripMargin()
         }
     }
 
