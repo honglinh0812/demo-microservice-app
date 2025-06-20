@@ -57,7 +57,7 @@ pipeline {
                     def tagName = env.TAG_NAME
                     def frontendImage = "${DOCKER_HUB_REPO}/microservices-frontend:${tagName}"
                     def backendImage = "${DOCKER_HUB_REPO}/microservices-backend:${tagName}"
-                    withCredentials([usernamePassword(credentialsId: 'dockerhubcredentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
                         sh "echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
 
                         echo "Building Docker image: ${frontendImage}"
