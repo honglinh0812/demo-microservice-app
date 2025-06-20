@@ -85,6 +85,7 @@ spec:
         stage('Build and Push Frontend Image with Kaniko') {
             steps {
                 script {
+                    def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     def tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
                     def dockerImageTag = "microservice-frontend:${tagName}"
                     container('kaniko') {
@@ -104,6 +105,7 @@ spec:
         stage('Build and Push Backend Image with Kaniko') {
             steps {
                 script {
+                    def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     def tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
                     def dockerImageTag = "microservice-frontend:${tagName}"
                     container('kaniko') {
@@ -122,6 +124,7 @@ spec:
         stage('Update config repository') {
             steps {
                 script {
+                    def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     def tagName = ""
                     try {
                         tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
