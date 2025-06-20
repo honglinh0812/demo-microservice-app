@@ -111,8 +111,8 @@ pipeline {
                         def dockerImageTag = "microservice-backend:${gitCommit}"
                         sh """
                         /kaniko/executor \
-                            --dockerfile=Dockerfile \
-                            --context=dir://$(pwd) \
+                            --dockerfile `pwd`/microservices-backend/Dockerfile \
+                            --context `pwd` \
                             --destination=docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
                         """     
                     }
