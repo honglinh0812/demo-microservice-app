@@ -162,8 +162,16 @@ spec:
 
                             sh "git add ${frontendValuesFilePath}"
                             sh "git add ${backendValuesFilePath}"
-                            sh "git commit -m 'CI: Update frontend and backend image tags to ${tagName}'"
-                            sh "git push origin ${CONFIG_REPO_BRANCH}"
+                            
+                            def hasChanges = sh(script: "git diff --cached --quiet || echo 'yes'", returnStdout: true).trim()
+
+                            if (hasChanges == 'yes') {
+                                sh "git commit -m 'CI: Update image tag to ${tagName}'"
+                                sh "git push origin ${CONFIG_REPO_BRANCH}"
+                                echo "Image tag updated and pushed"
+                            } else {
+                                echo "No changes to commit"
+                            }
                         }
                     }
                     echo "Config repository updated successfully."
