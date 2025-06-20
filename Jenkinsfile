@@ -109,14 +109,12 @@ pipeline {
                     script {
                         def gitCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim().substring(0, 8)
                         def dockerImageTag = "microservice-backend:${gitCommit}"
-                        dir("${BACKEND_SOURCE_PATH}") {
                         sh """
                             /kaniko/executor \
                             --dockerfile=Dockerfile \
                             --context=dir://$(pwd) \
                             --destination=docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
-                        """
-                        }
+                        """     
                     }
                 }
             }
