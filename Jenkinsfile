@@ -86,7 +86,7 @@ pipeline {
         stage('Build and Push Backend Image with Kaniko') {
             steps {
                 container('kaniko') {
-                    dir("${BACKEND_SOURCE_PATH}") {
+                    dir("/home/jenkins/agent/${BACKEND_SOURCE_PATH}") {
                         sh '''
                         /kaniko/executor \
                           --dockerfile=Dockerfile \
@@ -101,7 +101,7 @@ pipeline {
         stage('Build and Push Frontend Image with Kaniko') {
             steps {
                 container('kaniko') {
-                    dir("${FRONTEND_SOURCE_PATH}") {
+                    dir("/home/jenkins/agent/${FRONTEND_SOURCE_PATH}") {
                         sh '''
                         /kaniko/executor \
                           --dockerfile=Dockerfile \
