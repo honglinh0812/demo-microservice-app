@@ -44,8 +44,8 @@ spec:
         CONFIG_REPO_BRANCH = 'main' 
         FRONTEND_SOURCE_PATH = 'microservices-frontend'
         BACKEND_SOURCE_PATH = 'microservices-backend' 
-        FRONTEND_HELM_CHART_PATH = 'config/frontend-chart' 
-        BACKEND_HELM_CHART_PATH = 'config/backend-chart' 
+        FRONTEND_HELM_CHART_PATH = 'frontend-chart' 
+        BACKEND_HELM_CHART_PATH = 'backend-chart' 
         VALUES_FILE = 'values.yaml'
         }
     stages {
@@ -124,8 +124,28 @@ spec:
         stage('Update config repository') {
             steps {
                 script {
-                    def tagName = env.TAG_NAME
-                    def configRepoDir = "config-repo"
+                    def tagName = ""
+                    def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                    echo "Current commit hash: ${currentCommit}"
+
+                    try {
+                        tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
+                    } catch (Exception e) {
+                        echo "Cảnh báo: Lệnh `git describe --exact-match` thất bại cho commit ${currentCommit}. Lỗi: ${e.getMessage()}"
+                        try {
+                            tagName = sh(returnStdout: true, script: 'git describe --tags --abbrev=0').trim()
+                        } catch (Exception e2) {
+                            echo "Cảnh báo: Lệnh `git describe --abbrev=0` thất bại. Lỗi: ${e2.getMessage()}"
+                            if (env.TAG_NAME) {
+                                tagName = env.TAG_NAME
+                            } else if (env.GIT_BRANCH && env.GIT_BRANCH.startsWith('tags/')) {
+                                tagName = env.GIT_BRANCH.substring(env.GIT_BRANCH.lastIndexOf('/') + 1)
+                            } else if (env.GIT_TAG) {
+                                tagName = env.GIT_TAG
+                            }
+                        }
+                    }
+                    def configRepoDir = "config"
 
                     withCredentials([usernamePassword(credentialsId: 'git-config-repo-credentials', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                         sh "git config --global user.email 'jenkins@example.com'"
@@ -135,6 +155,7 @@ spec:
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
 
                             def frontendValuesFilePath = "${FRONTEND_HELM_CHART_PATH}/${VALUES_FILE}"
+                            sh "ls -l ${frontendValuesFilePath} || echo '⚠️ File not found: ${frontendValuesFilePath}'"
                             sh "sed -i 's|tag: \\\".*\\\"|tag: \\\"${tagName}\\\"|g' ${frontendValuesFilePath}"
                             echo "Updated ${frontendValuesFilePath} with image tag: ${tagName}"
 
