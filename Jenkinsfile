@@ -83,13 +83,30 @@ pipeline {
                 }
             }
         }
+
+        stage('Build and Push Frontend Image with Kaniko') {
+            steps {
+                def gitCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim().substring(0, 8)
+                def dockerImageTag = "microservice-frontend:${gitCommit}"
+                container('kaniko') {
+                        echo "Đang build và push image với Kaniko: ${dockerImageTag}"
+                        sh """
+                        /kaniko/executor --context `pwd` \\
+                                         --dockerfile `pwd`/microservices-frontend/Dockerfile \\
+                                         --destination ${dockerImageTag}
+                        """
+                        echo "Build và push với Kaniko thành công."
+                    }
+            }
+        }
+
         stage('Build and Push Backend Image with Kaniko') {
             steps {
                 container('kaniko') {
-                    dir("/home/jenkins/agent/${BACKEND_SOURCE_PATH}") {
+                    dir("${BACKEND_SOURCE_PATH}") {
                         sh '''
                         /kaniko/executor \
-                          --dockerfile=Dockerfile \
+                          --dockerfile=microservices-backend/Dockerfile \
                           --context=dir://$(pwd) \
                           --destination=docker.io/$DOCKER_HUB_REPO/microservice-backend:$IMAGE_TAG
                         '''
@@ -97,21 +114,7 @@ pipeline {
                 }
             }
         }
-
-        stage('Build and Push Frontend Image with Kaniko') {
-            steps {
-                container('kaniko') {
-                    dir("/home/jenkins/agent/${FRONTEND_SOURCE_PATH}") {
-                        sh '''
-                        /kaniko/executor \
-                          --dockerfile=Dockerfile \
-                          --context=dir://$(pwd) \
-                          --destination=docker.io/$DOCKER_HUB_REPO/microservice-frontend:$IMAGE_TAG
-                        '''
-                    }
-                }
-            }
-        }
+        
         stage('Update config repository') {
             steps {
                 script {
