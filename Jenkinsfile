@@ -42,8 +42,8 @@ pipeline {
         DOCKER_HUB_REPO = 'linhx021' 
         CONFIG_REPO_URL = 'https://github.com/honglinh0812/CD-VDT.git' // Thay thế bằng URL config repo của bạn
         CONFIG_REPO_BRANCH = 'main' 
-        FRONTEND_SOURCE_PATH = '/microservices-frontend'
-        BACKEND_SOURCE_PATH = '/microservices-backend' 
+        FRONTEND_SOURCE_PATH = 'microservices-frontend'
+        BACKEND_SOURCE_PATH = 'microservices-backend' 
         FRONTEND_HELM_CHART_PATH = '/app/frontend-chart' 
         BACKEND_HELM_CHART_PATH = '/app/backend-chart' 
         VALUES_FILE = 'values.yaml'
