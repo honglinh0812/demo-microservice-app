@@ -1,40 +1,39 @@
 pipeline {
     agent {
         kubernetes {
-            yaml ''' |
-    apiVersion: v1
-    kind: Pod
-    spec:
-    containers:
-        - name: jnlp
-          image: jenkins/inbound-agent:alpine-jdk11
-          args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
-          workingDir: /home/jenkins/agent
-          volumeMounts:
-            - name: workspace-volume
-              mountPath: /home/jenkins/agent
-
-        - name: kaniko
-          image: gcr.io/kaniko-project/executor:debug
-          imagePullPolicy: Always
-          tty: true
-          command: ['/bin/sh', '-cx']
-          args: ['cat']
-          volumeMounts:
-            - name: workspace-volume
-              mountPath: /home/jenkins/agent
-            - name: docker-config
-              mountPath: /kaniko/.docker/
-    volumes:
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: jnlp
+      image: jenkins/inbound-agent:alpine-jdk11
+      args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+      workingDir: /home/jenkins/agent
+      volumeMounts:
         - name: workspace-volume
-          emptyDir: {}
+          mountPath: /home/jenkins/agent
+
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug
+      imagePullPolicy: Always
+      command: [sleep]
+      args: ["9999999"]
+      volumeMounts:
+        - name: workspace-volume
+          mountPath: /home/jenkins/agent
         - name: docker-config
-          secret:
-            secretName: dockerhub-credentials
-            items:
-            - key: .dockerconfigjson
-              path: config.json
-    '''.stripMargin()
+          mountPath: /kaniko/.docker/
+  volumes:
+    - name: workspace-volume
+      emptyDir: {}
+    - name: docker-config
+      secret:
+        secretName: dockerhub-credentials
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+"""
         }
     }
 
