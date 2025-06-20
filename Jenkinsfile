@@ -53,8 +53,6 @@ spec:
             steps {
                 script {
                     def tagName = ""
-                    checkout scm
-                    
                     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     echo "Current commit hash: ${currentCommit}"
 
@@ -155,7 +153,7 @@ spec:
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
 
                             def frontendValuesFilePath = "${FRONTEND_HELM_CHART_PATH}/${VALUES_FILE}"
-                            sh "ls -l ${frontendValuesFilePath} || echo '⚠️ File not found: ${frontendValuesFilePath}'"
+                            sh "ls -l"
                             sh "sed -i 's|tag: \\\".*\\\"|tag: \\\"${tagName}\\\"|g' ${frontendValuesFilePath}"
                             echo "Updated ${frontendValuesFilePath} with image tag: ${tagName}"
 
