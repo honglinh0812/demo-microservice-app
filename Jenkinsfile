@@ -86,36 +86,42 @@ pipeline {
 
         stage('Build and Push Frontend Image with Kaniko') {
             steps {
+                container('kaniko') {
                 script {
                     def gitCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim().substring(0, 8)
                     def dockerImageTag = "microservice-frontend:${gitCommit}"
-                    container('kaniko') {
-                            echo "Đang build và push image với Kaniko: ${dockerImageTag}"
-                            sh """
-                            /kaniko/executor --context `pwd` \\
-                                            --dockerfile `pwd`/microservices-frontend/Dockerfile \\
-                                            --destination ${dockerImageTag}
-                            """
-                            echo "Build và push với Kaniko thành công."
+                    echo "Đang build và push image với Kaniko: ${dockerImageTag}"
+                    sh """
+                    /kaniko/executor \
+                        --context `pwd` \
+                        --dockerfile `pwd`/microservices-frontend/Dockerfile \
+                        --destination docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
+                    """
+                }
+                }
+            }
+        }
+
+
+        stage('Build and Push Backend Image with Kaniko') {
+            steps {
+                container('kaniko') {
+                    script {
+                        def gitCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim().substring(0, 8)
+                        def dockerImageTag = "microservice-backend:${gitCommit}"
+                        dir("${BACKEND_SOURCE_PATH}") {
+                        sh """
+                            /kaniko/executor \
+                            --dockerfile=Dockerfile \
+                            --context=dir://$(pwd) \
+                            --destination=docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
+                        """
+                        }
                     }
                 }
             }
         }
 
-        stage('Build and Push Backend Image with Kaniko') {
-            steps {
-                container('kaniko') {
-                    dir("${BACKEND_SOURCE_PATH}") {
-                        sh '''
-                        /kaniko/executor \
-                          --dockerfile=microservices-backend/Dockerfile \
-                          --context=dir://$(pwd) \
-                          --destination=docker.io/$DOCKER_HUB_REPO/microservice-backend:$IMAGE_TAG
-                        '''
-                    }
-                }
-            }
-        }
 
         stage('Update config repository') {
             steps {
