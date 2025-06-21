@@ -84,15 +84,16 @@ spec:
                 script {
                     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     def tagName  = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
-                    def configRepoDir = "config-repo"
+                    def configRepoDir = "CD-VDT"
 
                     withCredentials([string(credentialsId: 'git-pat-token', variable: 'GIT_TOKEN')]) {
                         sh "git config --global user.email 'honglinh0812uet@gmail.com'"
                         sh "git config --global user.name 'honglinh0812'"
                         sh '''
                             GIT_TOKEN=$GIT_TOKEN
-                            git clone https://honglinh0812:${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git config-repo
+                            git clone https://honglinh0812:${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git
                         '''
+                        sh "cd ${configRepoDir}"
                         dir(configRepoDir) {
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
 
