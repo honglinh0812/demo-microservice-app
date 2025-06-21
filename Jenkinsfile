@@ -88,8 +88,9 @@ spec:
 
                     withCredentials([string(credentialsId: 'git-pat-token', variable: 'GIT_TOKEN')]) {
                         sh """
-                            echo "machine github.com login honglinh0812 password ${GIT_TOKEN}" > ~/.netrc
-                            chmod 600 ~/.netrc
+                            mkdir -p \$HOME
+                            echo "machine github.com login honglinh0812 password ${GIT_TOKEN}" > \$HOME/.netrc
+                            chmod 600 \$HOME/.netrc
                             git config --global user.email 'honglinh0812uet@gmail.com'
                             git config --global user.name 'honglinh0812'
                             git clone https://github.com/honglinh0812/CD-VDT.git
