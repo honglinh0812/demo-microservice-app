@@ -97,10 +97,13 @@ spec:
 
                             def frontendValuesFilePath = "${FRONTEND_HELM_CHART_PATH}/${VALUES_FILE}"
                             sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${frontendValuesFilePath}"
+                            sh "sed -i 's|^\\(\\s*replicaCount:\\s*\\).*|\\12|' ${frontendValuesFilePath}"
                             echo "Updated ${frontendValuesFilePath} with image tag: ${tagName}"
 
                             def backendValuesFilePath = "${BACKEND_HELM_CHART_PATH}/${VALUES_FILE}"
                             sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${backendValuesFilePath}"
+                            "sed -i 's|^\\(\\s*replicaCount:\\s*\\).*|\\12|' ${backendValuesFilePath}"
+                            
                             echo "Updated ${backendValuesFilePath} with image tag: ${tagName}"
                             sh "git add ${frontendValuesFilePath}"
                             sh "git add ${backendValuesFilePath}"
