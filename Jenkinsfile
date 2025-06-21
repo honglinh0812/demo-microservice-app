@@ -86,10 +86,11 @@ spec:
                     def tagName  = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
                     def configRepoDir = "config-repo"
 
-                    withCredentials([usernamePassword(credentialsId: 'git-config-repo-credentials', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    withCredentials([string(credentialsId: 'git-pat-token', variable: 'GIT_TOKEN')]) {
                         sh "git config --global user.email 'honglinh0812uet@gmail.com'"
                         sh "git config --global user.name 'honglinh0812'"
-                        sh "git clone ${CONFIG_REPO_URL} ${configRepoDir}"
+                        sh "git clone https://honglinh0812:${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git ${configRepoDir}"
+
                         dir(configRepoDir) {
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
 
@@ -100,16 +101,14 @@ spec:
                             def backendValuesFilePath = "${BACKEND_HELM_CHART_PATH}/${VALUES_FILE}"
                             sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${backendValuesFilePath}"
                             echo "Updated ${backendValuesFilePath} with image tag: ${tagName}"
-                            sh "cat ${frontendValuesFilePath}"
-                            sh "git add ${frontendValuesFilePath}"
-                            sh "git add ${backendValuesFilePath}"
-                            sh """
-                                git remote set-url origin https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@github.com/honglinh0812/CD-VDT.git
-                            """
+
+                            sh "git add ${frontendValuesFilePath} ${backendValuesFilePath}"
+
                             def hasChanges = sh(script: "git diff --cached --quiet || echo 'yes'", returnStdout: true).trim()
 
                             if (hasChanges == 'yes') {
                                 sh "git commit -m 'CI: Update image tag to ${tagName}'"
+                                // Push sử dụng token đã embed từ đầu
                                 sh "git push origin ${CONFIG_REPO_BRANCH}"
                                 echo "Image tag updated and pushed"
                             } else {
