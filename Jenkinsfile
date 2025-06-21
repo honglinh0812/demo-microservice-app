@@ -89,8 +89,10 @@ spec:
                     withCredentials([string(credentialsId: 'git-pat-token', variable: 'GIT_TOKEN')]) {
                         sh "git config --global user.email 'honglinh0812uet@gmail.com'"
                         sh "git config --global user.name 'honglinh0812'"
-                        sh "git clone https://honglinh0812:${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git ${configRepoDir}"
-
+                        sh '''
+                            GIT_TOKEN=$GIT_TOKEN
+                            git clone https://honglinh0812:${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git config-repo
+                        '''
                         dir(configRepoDir) {
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
 
