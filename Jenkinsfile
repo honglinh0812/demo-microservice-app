@@ -87,10 +87,12 @@ spec:
                     def configRepoDir = "CD-VDT"
 
                     withCredentials([string(credentialsId: 'git-pat-token', variable: 'GIT_TOKEN')]) {
-                        sh "git config --global user.email 'honglinh0812uet@gmail.com'"
-                        sh "git config --global user.name 'honglinh0812'"
                         sh """
-                            git clone https://honglinh0812:${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git config-repo
+                            echo "machine github.com login honglinh0812 password ${GIT_TOKEN}" > ~/.netrc
+                            chmod 600 ~/.netrc
+                            git config --global user.email 'honglinh0812uet@gmail.com'
+                            git config --global user.name 'honglinh0812'
+                            git clone https://github.com/honglinh0812/CD-VDT.git
                         """
                         sh "cd ${configRepoDir}"
                         dir(configRepoDir) {
