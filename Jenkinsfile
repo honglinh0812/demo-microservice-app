@@ -98,12 +98,12 @@ spec:
                             echo "Updated ${frontendValuesFilePath} with image tag: ${tagName}"
 
                             def backendValuesFilePath = "${BACKEND_HELM_CHART_PATH}/${VALUES_FILE}"
-                            sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${frontendValuesFilePath}"
+                            sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${backendValuesFilePath}"
                             echo "Updated ${backendValuesFilePath} with image tag: ${tagName}"
                             sh "cat ${frontendValuesFilePath}"
                             sh "git add ${frontendValuesFilePath}"
                             sh "git add ${backendValuesFilePath}"
-                            
+                            sh "git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/honglinh0812/CD-VDT.git"
                             def hasChanges = sh(script: "git diff --cached --quiet || echo 'yes'", returnStdout: true).trim()
 
                             if (hasChanges == 'yes') {
