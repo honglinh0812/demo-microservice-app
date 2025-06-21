@@ -90,7 +90,7 @@ spec:
                         sh """
                             git config --global user.email 'honglinh0812uet@gmail.com'
                             git config --global user.name 'honglinh0812'
-                            git clone https://${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git ${configRepoDir}
+                            git clone https://${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git 
                         """
 
                         dir(configRepoDir) {
