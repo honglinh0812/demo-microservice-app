@@ -117,6 +117,10 @@ def get_products():
 def ratelimit_handler(e):
     return jsonify({'message': 'Too many requests.', 'status_code': 409}), 409
 
+@app.route('/healthz', methods=['GET'])
+def healthz():
+    return 'OK', 200
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
