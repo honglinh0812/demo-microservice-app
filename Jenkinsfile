@@ -9,6 +9,8 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:debug
       imagePullPolicy: Always
+      command: [sleep]
+      args: ["9999999"]
       volumeMounts:
         - name: workspace-volume
           mountPath: /home/jenkins/agent
@@ -66,10 +68,7 @@ spec:
                         /kaniko/executor \
                             --context `pwd`/microservices-frontend \
                             --dockerfile `pwd`/microservices-frontend/Dockerfile \
-                            --destination docker.io/${DOCKER_HUB_REPO}/${dockerImageTagFrontend}
-                        """
-                        echo "Đang build và push image với Kaniko: ${dockerImageTagBackend}"
-                        sh """
+                            --destination docker.io/${DOCKER_HUB_REPO}/${dockerImageTagFrontend} &&
                         /kaniko/executor \
                             --dockerfile `pwd`/microservices-backend/Dockerfile \
                             --context `pwd`/microservices-backend \
