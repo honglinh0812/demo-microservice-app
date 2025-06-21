@@ -103,7 +103,9 @@ spec:
                             sh "cat ${frontendValuesFilePath}"
                             sh "git add ${frontendValuesFilePath}"
                             sh "git add ${backendValuesFilePath}"
-                            sh "git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/honglinh0812/CD-VDT.git"
+                            sh """
+                                git remote set-url origin https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@github.com/honglinh0812/CD-VDT.git
+                            """
                             def hasChanges = sh(script: "git diff --cached --quiet || echo 'yes'", returnStdout: true).trim()
 
                             if (hasChanges == 'yes') {
