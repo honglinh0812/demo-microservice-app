@@ -88,17 +88,9 @@ spec:
 
                     withCredentials([string(credentialsId: 'git-pat-token', variable: 'GIT_TOKEN')]) {
                         sh """
-                            echo "echo ${GIT_TOKEN}" > git-askpass.sh
-                            chmod +x git-askpass.sh
-
-                            export GIT_ASKPASS=\$(pwd)/git-askpass.sh
-                            export GIT_USERNAME=honglinh0812
-                            export GIT_EMAIL=honglinh0812uet@gmail.com
-
-                            git config --global user.email "\$GIT_EMAIL"
-                            git config --global user.name "\$GIT_USERNAME"
-
-                            git clone https://github.com/honglinh0812/CD-VDT.git ${configRepoDir}
+                            git config --global user.email 'honglinh0812uet@gmail.com'
+                            git config --global user.name 'honglinh0812'
+                            git clone https://${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git ${configRepoDir}
                         """
 
                         dir(configRepoDir) {
@@ -117,10 +109,8 @@ spec:
                             def hasChanges = sh(script: "git diff --cached --quiet || echo 'yes'", returnStdout: true).trim()
 
                             if (hasChanges == 'yes') {
-                                sh """
-                                    git commit -m 'CI: Update image tag to ${tagName}'
-                                    GIT_ASKPASS=\$(pwd)/../git-askpass.sh git push origin ${CONFIG_REPO_BRANCH}
-                                """
+                                sh "git commit -m 'CI: Update image tag to ${tagName}'"
+                                sh "git push https://${GIT_TOKEN}@github.com/honglinh0812/CD-VDT.git ${CONFIG_REPO_BRANCH}"
                                 echo "Image tag updated and pushed"
                             } else {
                                 echo "No changes to commit"
