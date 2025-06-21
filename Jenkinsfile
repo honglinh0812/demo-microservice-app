@@ -65,9 +65,9 @@ spec:
                         echo "Đang build và push image với Kaniko: ${dockerImageTag}"
                         sh """
                         /kaniko/executor \
-                            --context /home/jenkins/agent/microservices-frontend \
-                            --dockerfile /home/jenkins/agent/microservices-frontend/Dockerfile \
-                            --destination docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
+                            --context=/home/jenkins/agent/microservices-frontend \
+                            --dockerfile=/home/jenkins/agent/microservices-frontend/Dockerfile \
+                            --destination=docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
                         """
                     }
                 }
@@ -83,8 +83,8 @@ spec:
                     container('kaniko') {
                         sh """
                         /kaniko/executor \
-                            --dockerfile /home/jenkins/agent/microservices-backend/Dockerfile \
-                            --context /home/jenkins/agent/microservices-backend \
+                            --dockerfile=/home/jenkins/agent/microservices-backend/Dockerfile \
+                            --context=/home/jenkins/agent/microservices-backend \
                             --destination=docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
                         """     
                     }
