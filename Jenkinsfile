@@ -85,8 +85,6 @@ spec:
                     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     def tagName  = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
                     def configRepoDir = "config-repo"
-                    def backendImageTag = "linhx021/microservice-backend:${tagName}"
-                    def frontendImageTag = "linhx021/microservice-frontend:${tagName}"
 
                     withCredentials([usernamePassword(credentialsId: 'git-config-repo-credentials', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                         sh "git config --global user.email 'honglinh0812uet@gmail.com'"
@@ -96,11 +94,11 @@ spec:
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
 
                             def frontendValuesFilePath = "${FRONTEND_HELM_CHART_PATH}/${VALUES_FILE}"
-                            sh "sed -i 's|image: .*|image: ${frontendImageTag}|g' ${frontendValuesFilePath}"
+                            sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${frontendValuesFilePath}"
                             echo "Updated ${frontendValuesFilePath} with image tag: ${tagName}"
 
                             def backendValuesFilePath = "${BACKEND_HELM_CHART_PATH}/${VALUES_FILE}"
-                            sh "sed -i 's|image: .*|image: ${backendImageTag}|g' ${backendValuesFilePath}"
+                            sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${frontendValuesFilePath}"
                             echo "Updated ${backendValuesFilePath} with image tag: ${tagName}"
                             sh "cat ${frontendValuesFilePath}"
                             sh "git add ${frontendValuesFilePath}"
