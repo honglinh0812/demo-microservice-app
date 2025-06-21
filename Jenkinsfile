@@ -55,38 +55,28 @@ spec:
             }
         }
 
-        stage('Build and Push Frontend Image with Kaniko') {
+        stage('Build and push images with Kaniko') {
             steps {
                 script {
                     def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                     def tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
-                    def dockerImageTag = "microservice-frontend:${tagName}"
+                    def dockerImageTagFrontend = "microservice-frontend:${tagName}"
+                    def dockerImageTagBackend = "microservice-backend:${tagName}"
                     container('kaniko') {
-                        echo "Đang build và push image với Kaniko: ${dockerImageTag}"
+                        echo "Đang build và push image với Kaniko: ${dockerImageTagFrontend}"
                         sh """
                         /kaniko/executor \
                             --context `pwd`/microservices-frontend \
                             --dockerfile `pwd`/microservices-frontend/Dockerfile \
-                            --destination docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
+                            --destination docker.io/${DOCKER_HUB_REPO}/${dockerImageTagFrontend}
                         """
-                    }
-                }
-            }
-        }
-
-        stage('Build and Push Backend Image with Kaniko') {
-            steps {
-                script {
-                    def currentCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                    def tagName = sh(returnStdout: true, script: "git describe --tags --exact-match ${currentCommit}").trim()
-                    def dockerImageTag = "microservice-backend:${tagName}"
-                    container('kaniko') {
+                        echo "Đang build và push image với Kaniko: ${dockerImageTagBackend}"
                         sh """
                         /kaniko/executor \
                             --dockerfile `pwd`/microservices-backend/Dockerfile \
                             --context `pwd`/microservices-backend \
-                            --destination=docker.io/${DOCKER_HUB_REPO}/${dockerImageTag}
-                        """     
+                            --destination=docker.io/${DOCKER_HUB_REPO}/${dockerImageTagBackend}
+                        """
                     }
                 }
             }
