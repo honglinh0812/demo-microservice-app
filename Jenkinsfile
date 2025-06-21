@@ -88,39 +88,46 @@ spec:
 
                     withCredentials([string(credentialsId: 'git-pat-token', variable: 'GIT_TOKEN')]) {
                         sh """
-                            mkdir -p \$HOME
-                            echo "machine github.com login honglinh0812 password ${GIT_TOKEN}" > \$HOME/.netrc
-                            chmod 600 \$HOME/.netrc
-                            git config --global user.email 'honglinh0812uet@gmail.com'
-                            git config --global user.name 'honglinh0812'
-                            git clone https://github.com/honglinh0812/CD-VDT.git
+                            echo "echo ${GIT_TOKEN}" > git-askpass.sh
+                            chmod +x git-askpass.sh
+
+                            export GIT_ASKPASS=\$(pwd)/git-askpass.sh
+                            export GIT_USERNAME=honglinh0812
+                            export GIT_EMAIL=honglinh0812uet@gmail.com
+
+                            git config --global user.email "\$GIT_EMAIL"
+                            git config --global user.name "\$GIT_USERNAME"
+
+                            git clone https://github.com/honglinh0812/CD-VDT.git ${configRepoDir}
                         """
-                        sh "cd ${configRepoDir}"
+
                         dir(configRepoDir) {
                             sh "git checkout ${CONFIG_REPO_BRANCH}"
 
                             def frontendValuesFilePath = "${FRONTEND_HELM_CHART_PATH}/${VALUES_FILE}"
+                            def backendValuesFilePath = "${BACKEND_HELM_CHART_PATH}/${VALUES_FILE}"
+
                             sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${frontendValuesFilePath}"
                             echo "Updated ${frontendValuesFilePath} with image tag: ${tagName}"
 
-                            def backendValuesFilePath = "${BACKEND_HELM_CHART_PATH}/${VALUES_FILE}"
                             sh "sed -i 's|^\\(\\s*tag:\\s*\\).*|\\1${tagName}|' ${backendValuesFilePath}"
                             echo "Updated ${backendValuesFilePath} with image tag: ${tagName}"
 
                             sh "git add ${frontendValuesFilePath} ${backendValuesFilePath}"
-
                             def hasChanges = sh(script: "git diff --cached --quiet || echo 'yes'", returnStdout: true).trim()
 
                             if (hasChanges == 'yes') {
-                                sh "git commit -m 'CI: Update image tag to ${tagName}'"
-                                // Push sử dụng token đã embed từ đầu
-                                sh "git push origin ${CONFIG_REPO_BRANCH}"
+                                sh """
+                                    git commit -m 'CI: Update image tag to ${tagName}'
+                                    GIT_ASKPASS=\$(pwd)/../git-askpass.sh git push origin ${CONFIG_REPO_BRANCH}
+                                """
                                 echo "Image tag updated and pushed"
                             } else {
                                 echo "No changes to commit"
                             }
                         }
                     }
+
                     echo "Config repository updated successfully."
                 }
             }
