@@ -44,12 +44,17 @@ def verify_password(username, password):
 def get_user_roles(username):
     return users[username]["role"]
 
+# Function to skip rate limiting for health checks
+def skip_health_check():
+    return request.path == '/healthz'
+
 # Rate Limiting setup
 limiter = Limiter(
     get_remote_address,
     app=app,
     default_limits=["200 per day", "50 per hour"],
     storage_uri="memory://", # Can use redis:// for production
+    skip_if=skip_health_check # Skip rate limiting if health check
 )
 
 app.register_blueprint(user_bp, url_prefix='/api')
